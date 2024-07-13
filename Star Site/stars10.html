@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Звездный сайт</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a2a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .star-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200vw;
+            height: 200vh;
+            animation: moveDiagonal 60s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 1s infinite alternate;
+        }
+        @keyframes moveDiagonal {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100vw, -100vh); }
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        header {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            text-align: center;
+            animation: fadeInDown 1s ease-out;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 5px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        nav a:hover, nav a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #ffcc00;
+        }
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, textarea {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: background-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        button {
+            padding: 10px;
+            background-color: #ffcc00;
+            color: #0a0a2a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #ffd700;
+            transform: scale(1.05);
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .gallery-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        .gallery-item.show {
+            opacity: 1;
+            transform: scale(1);
+            animation: popIn 0.5s ease-out forwards;
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            70% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        .gallery-item figcaption {
+            padding: 10px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            transition: background-color 0.3s ease;
+        }
+        .gallery-item:hover figcaption {
+            background-color: rgba(255, 204, 0, 0.7);
+            color: #0a0a2a;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            opacity: 1;
+        }
+        .modal-content {
+            background-color: #0a0a2a;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                width: 80%;
+                text-align: center;
+                margin: 5px 0;
+            }
+            main {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+        @media (max-width: 480px) {
+            header {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            h2 {
+                font-size: 18px;
+            }
+            .star {
+                width: 1px;
+                height: 1px;
+            }
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Новая анимация для элементов формы */
+        input, textarea, button {
+            transform: translateY(50px);
+            opacity: 0;
+            animation: slideUp 0.5s forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* Стили для анимации отправки сообщения */
+        .message-sent {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffcc00;
+            color: #0a0a2a;
+            padding: 20px;
+            border-radius: 50%;
+            font-size: 24px;
+            opacity: 0;
+            z-index: 1000;
+            transition: all 0.5s ease;
+        }
+        .message-sent.animate {
+            animation: sendMessage 2s forwards;
+        }
+        @keyframes sendMessage {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -500%) scale(0);
+            }
+        }
+        /* Стили для звезд в форме */
+        .star-field {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .star-field .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="star-container"></div>
+    <div class="content-wrapper">
+        <header>
+            <h1>Звездный сайт</h1>
+        </header>
+        <nav>
+            <a href="#" data-page="home" class="active">Главная</a>
+            <a href="#" data-page="about">О нас</a>
+            <a href="#" data-page="gallery">Галерея</a>
+            <a href="#" data-page="contact">Контакты</a>
+        </nav>
+        <main>
+            <div id="home" class="page active">
+                <h2>Добро пожаловать в наш звездный мир!</h2>
+                <p>Здесь вы найдете удивительные факты о космосе, звездах и галактиках.</p>
+            </div>
+            <div id="about" class="page">
+                <h2>О нас</h2>
+                <p>Мы - команда энтузиастов, увлеченных астрономией и космосом. Наша цель - делиться знаниями о Вселенной со всеми, кто интересуется звездами.</p>
+            </div>
+            <div id="gallery" class="page">
+                <h2>Галерея</h2>
+                <div class="gallery-grid">
+                    <figure class="gallery-item" data-title="Млечный Путь" data-description="Млечный Путь - это галактика, в которой находится наша Солнечная система. Она содержит от 100 до 400 миллиардов звезд и имеет диаметр около 100 000 световых лет.">
+                        <img src="https://i.ibb.co/qmfTFK1/image.jpg" alt="Млечный Путь">
+                        <figcaption>Млечный Путь</figcaption>
+                    </figure>
+                    <figure class="gallery-item" data-title="Туманность Ориона" data-description="Туманность Ориона - одна из самых ярких туманностей, видимых с Земли. Она находится на расстоянии около 1344 световых лет от нас и является областью активного звездообразования.">
+                        <img src="https://i.ibb.co/J2RykZL/image.jpg" alt="Туманность Ориона">
+                        <figcaption>Туманность Ориона</figcaption>
+                    </figure>
+                    <figure class="gallery-item" data-title="Галактика Андромеды" data-description="Галактика Андромеды - ближайшая к нам крупная галактика, находящаяся на расстоянии около 2.5 миллионов световых лет. Она является крупнейшим членом Местной группы галактик, в которую входит и наш Млечный Путь.">
+                        <img src="https://i.ibb.co/ZYYj2J2/image.jpg" alt="Галактика Андромеды">
+                        <figcaption>Галактика Андромеды</figcaption>
+                    </figure>
+                    <figure class="gallery-item" data-title="Солнечное затмение" data-description="Солнечное затмение происходит, когда Луна проходит между Землей и Солнцем, частично или полностью закрывая диск Солнца. Полное солнечное затмение - одно из самых впечатляющих астрономических явлений, наблюдаемых с Земли.">
+                      <img src="https://i.ibb.co/mSpccCk/image.jpg" alt="Солнечное затмение">
+                        <figcaption>Солнечное затмение</figcaption>
+                    </figure>
+                    <figure class="gallery-item" data-title="Комета" data-description="Кометы - это небольшие ледяные тела в Солнечной системе, которые при приближении к Солнцу образуют кому (атмосферу) и иногда хвост из газа и пыли. Они считаются остатками формирования Солнечной системы и могут содержать ценную информацию о ранних стадиях ее эволюции.">
+                        <img src="https://i.ibb.co/GJbFkCJ/image.jpg" alt="Комета">
+                        <figcaption>Комета</figcaption>
+                    </figure>
+                    <figure class="gallery-item" data-title="Северное сияние" data-description="Северное сияние, или Aurora Borealis, - это природное световое шоу, наблюдаемое в высоких широтах. Оно возникает, когда заряженные частицы солнечного ветра взаимодействуют с магнитным полем Земли и атомами в верхних слоях атмосферы.">
+                        <img src="https://i.ibb.co/JBrskvP/image.jpg" alt="Северное сияние">
+                        <figcaption>Северное сияние</figcaption>
+                    </figure>
+                </div>
+            </div>
+            <div id="contact" class="page">
+                <h2>Свяжитесь с нами</h2>
+                <form id="contactForm" action="https://formspree.io/f/xblrlgyo" method="POST">
+                    <input type="text" name="name" placeholder="Ваше имя" required>
+                    <input type="email" name="email" placeholder="Ваш email" required>
+                    <textarea name="message" placeholder="Ваше сообщение" required></textarea>
+                    <button type="submit">Отправить</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+
+    <div id="messageSent" class="message-sent">
+        <i class="fas fa-paper-plane"></i>
+    </div>
+
+    <script>
+        function createStars() {
+            const numStars = 200;
+            const container = document.querySelector('.star-container');
+            for (let i = 0; i < numStars; i++) {
+                let star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 200}%`;
+                star.style.top = `${Math.random() * 200}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                    setTimeout(() => {
+                        page.style.display = 'none';
+                    }, 500);
+                });
+                document.querySelectorAll('nav a').forEach(navLink => navLink.classList.remove('active'));
+                const targetPage = document.getElementById(this.dataset.page);
+                setTimeout(() => {
+                    targetPage.style.display = 'block';
+                    setTimeout(() => {
+                        targetPage.classList.add('active');
+                    }, 50);
+                }, 500);
+                this.classList.add('active');
+
+                if (this.dataset.page === 'gallery') {
+                    setTimeout(animateGalleryItems, 600);
+                }
+
+                if (this.dataset.page === 'contact') {
+                    animateFormElements();
+                }
+            });
+        });
+
+        function animateGalleryItems() {
+            const items = document.querySelectorAll('.gallery-item');
+            items.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('show');
+                }, index * 100);
+            });
+        }
+
+        function animateFormElements() {
+            const formElements = document.querySelectorAll('#contactForm input, #contactForm textarea, #contactForm button');
+            formElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const modal = document.getElementById('modal');
+                const modalTitle = document.getElementById('modal-title');
+                const modalDescription = document.getElementById('modal-description');
+
+                modal.style.display = "block";
+                modalTitle.textContent = this.dataset.title;
+                modalDescription.textContent = this.dataset.description;
+
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 50);
+            });
+        });
+
+        const closeBtn = document.querySelector(".close");
+        const modal = document.getElementById('modal');
+
+        closeBtn.onclick = function() {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = "none";
+            }, 300);
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = "none";
+                }, 300);
+            }
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    animateMessageSent();
+                    this.reset();
+                } else {
+                    response.json().then(data => {
+                        if (Object.hasOwn(data, 'errors')) {
+                            alert(data["errors"].map(error => error["message"]).join(", "));
+                        } else {
+                            alert('Упс! Произошла ошибка при отправке формы');
+                        }
+                    })
+                }
+            }).catch(error => {
+                alert('Упс! Произошла ошибка при отправке формы');
+            });
+        });
+
+        function animateMessageSent() {
+            const messageSent = document.getElementById('messageSent');
+            const contactForm = document.getElementById('contactForm');
+            const starField = document.createElement('div');
+            starField.className = 'star-field';
+            contactForm.appendChild(starField);
+
+            // Создаем звезды
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                starField.appendChild(star);
+            }
+
+            // Анимируем звезды
+            setTimeout(() => {
+                starField.querySelectorAll('.star').forEach(star => {
+                    const x = Math.random() * 200 - 100;
+                    const y = Math.random() * -200 - 100;
+                    star.style.transform = `translate(${x}px, ${y}px) scale(0)`;
+                    star.style.opacity = '0';
+                });
+            }, 100);
+
+            // Показываем и анимируем иконку отправки
+            messageSent.classList.add('animate');
+
+            // Удаляем звездное поле и сбрасываем анимацию после завершения
+            setTimeout(() => {
+                starField.remove();
+                messageSent.classList.remove('animate');
+            }, 2000);
+        }
+
+        if (document.querySelector('#gallery').classList.contains('active')) {
+            animateGalleryItems();
+        }
+
+        if (document.querySelector('#contact').classList.contains('active')) {
+            animateFormElements();
+        }
+    </script>
+</body>
+</html>
